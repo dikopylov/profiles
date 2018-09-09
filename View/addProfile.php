@@ -6,8 +6,12 @@
 </head>
 <body>
     <form name="main" method="post" action="../Controller/addProfile.php">
-        <p>ФИО</p>
-        <input name="fullName" type="text" maxlength="30" size="30">
+        <p>Фамилия</p>
+        <input name="firstName" type="text" maxlength="30" size="30">
+        <p>Имя</p>
+        <input name="patronymic" type="text" maxlength="30" size="30">
+        <p>Отчество</p>
+        <input name="lastName" type="text" maxlength="30" size="30">
         <p>E-mail</p>
         <input name="email" type="text" maxlength="30" size="30">
         <p>Phone</p>

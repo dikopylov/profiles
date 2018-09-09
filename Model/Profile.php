@@ -4,16 +4,16 @@ namespace Model;
 
 class Profile
 {
-    private $firstName;
-    private $patronymic;
-    private $lastName;
-    private $email;
-    private $phone;
-    private $id;
+    protected $firstName;
+    protected $patronymic;
+    protected $lastName;
+    protected $email;
+    protected $phone;
+    //private $id;
 
     public function setFirstName($firstName) : string
     {
-        return $this->firstName = $firstName;
+        return $this->firstName = htmlentities($firstName);
     }
     public function getFirstName() : string
     {
@@ -22,7 +22,7 @@ class Profile
 
     public function setPatronymic($patronymic) : string
     {
-        return $this->patronymic = $patronymic;
+        return $this->patronymic = htmlentities($patronymic);
     }
     public function getPatronymic() : string
     {
@@ -31,16 +31,17 @@ class Profile
 
     public function setLastName($lastName) : string
     {
-        return $this->lastName = $lastName;
+        return $this->lastName = htmlentities($lastName);
     }
     public function getLastName() : string
     {
         return $this->lastName;
     }
 
+
     public function setEmail($email) : string
     {
-        return $this->email = $email;
+        return $this->email = htmlentities($email);
     }
     public function getEmail() : string
     {
@@ -49,25 +50,25 @@ class Profile
 
     public function setPhone($phone) : int
     {
-        return $this->phone = $phone;
+        return $this->phone = htmlentities($phone);
     }
     public function getPhone()
     {
         return $this->phone;
     }
 
-    public function setId($id)
-    {
-        return $this->id = $id;
-    }
-    public function getId()
-    {
-        return $this->id;
-    }
+//    public function setId($id)
+//    {
+//        return $this->id = $id;
+//    }
+//    public function getId()
+//    {
+//        return $this->id;
+//    }
 
-    function __construct($id, $firstName, $patronymic, $lastName, $email, $phone)
+    function __construct($firstName, $patronymic, $lastName, $email, $phone)
     {
-        $this->id = $id;
+        //$this->id = $id;
         $this->firstName = $firstName;
         $this->patronymic = $patronymic;
         $this->lastName = $lastName;

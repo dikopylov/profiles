@@ -22,14 +22,10 @@ class UnloadingProfiles implements IAction
         {
             while ($row = $result->fetch_assoc())
             {
-//                echo $row["id"] . ' ' . $row['first_name'] . ' ' . $row['patronymic'] . ' ' .
-//                    $row['last_name'] . ' ' . $row['number'] . ' ' . $row['email'];
-
-                $profile = new Profile($row["id"], $row['first_name'], $row['patronymic'],
+                $profile = new Profile($row['first_name'], $row['patronymic'],
                     $row['last_name'], $row['email'], $row['number']);
 
-                array_push($profiles, $profile);
-//                echo '<br>';
+                $profiles[$row["id"]] = $profile;
             }
         }
         $mysqli->close();
