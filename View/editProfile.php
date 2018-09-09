@@ -1,21 +1,6 @@
 <?php
-
-require_once __DIR__ . '/../Model/UnloadingProfiles.php';
-
-$unload = new \Model\UnloadingProfiles();
-$profiles = $unload->run();
-
-if (array_key_exists($_GET['id'], $profiles))
-{
-    $profile = $profiles[$_GET['id']];
-    /// Вызываем обработчик запроса на изменение в модели
-}
-else
-{
-    header('Location: http://profil.es');
-}
+require_once __DIR__ . '/../Controller/unloadProfiles.php';
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -26,19 +11,21 @@ else
 <form name="main" method="post" action="../Controller/editProfile.php?id=<? echo $_GET['id'] ?>">
     <p>Фамилия</p>
     <input name="firstName" type="text" maxlength="30" size="30" value=
-        <? echo $profile instanceof Model\Profile ? $profile->getFirstName() : NULL ?>>
+        <? echo $profiles[$_GET['id']]->getFirstName()?>>
     <p>Имя</p>
     <input name="patronymic" type="text" maxlength="30" size="30" value=
-        <? echo $profile instanceof Model\Profile ? $profile->getPatronymic() : NULL ?>>
+        <? echo $profiles[$_GET['id']]->getPatronymic() ?>>
     <p>Отчество</p>
     <input name="lastName" type="text" maxlength="30" size="30" value=
-        <? echo $profile instanceof Model\Profile ? $profile->getLastName() : NULL ?>>
+        <? echo $profiles[$_GET['id']]->getLastName() ?>>
     <p>E-mail</p>
     <input name="email" type="text" maxlength="30" size="30" value=
-        <? echo $profile instanceof Model\Profile ? $profile->getPhone() : NULL ?>>
+        <? echo $profiles[$_GET['id']]->getEmail() ?>>
+    <a href="addEmail.php?id=<? echo $_GET['id'] ?>">Добавить почту</a>
     <p>Phone</p>
     <input name="phone" type="text" maxlength="30" size="30" value=
-        <? echo $profile instanceof Model\Profile ? $profile->getEmail() : NULL ?>> <br>
+        <? echo $profiles[$_GET['id']]->getPhone() ?>>
+    <a href="addPhone.php?id=<? echo $_GET['id'] ?>">Добавить телефон</a> <br>
     <input name="submit" type="submit">
 
 </form>

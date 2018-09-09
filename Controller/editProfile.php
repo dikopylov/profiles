@@ -1,25 +1,24 @@
 <?php
 
-require_once __DIR__ . '/../Model/dataMysql.php';
-require_once __DIR__ . '/../Model/UnloadingProfiles.php';
+require_once __DIR__ . '/../Model/EditProfile.php';
+require_once __DIR__ . '/../Model/Profile.php';
+require_once __DIR__ . '/../Controller/unloadProfiles.php';
 
-use Model\UnloadingProfiles;
+use Model\{ EditProfile, Profile };
 
-$unload = new UnloadingProfiles();
-$profiles = $unload->run();
 
 if (isset($_POST['firstName']) && isset($_POST['patronymic']) && isset($_POST['lastName']) &&
     isset($_POST['email']) && isset($_POST['phone']))
 {
-    // вызываем метод в модели, который редактирует данные
+    $clearId = htmlentities($_GET['id']);
 
-    $editProfile = $profiles[$_GET['id']];
-    $addProfile->run();
+    if ($profiles[$clearId] instanceof Profile)
+    {
+        $profiles[$clearId]->setId($clearId);
+
+        $editProfile = new EditProfile($profiles[$clearId], $_POST['firstName'], $_POST['patronymic'],
+            $_POST['lastName'], $_POST['email'], $_POST['phone']);
+        $editProfile->run();
+    }
+    header("Location: http://profil.es");
 }
-
-
-//if (array_key_exists($_GET['id'], $profiles))
-//{
-//    true;
-//    /// Вызываем обработчик запроса на изменение в модели
-//}

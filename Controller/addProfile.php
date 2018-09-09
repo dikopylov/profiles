@@ -1,7 +1,6 @@
 <?php
 
 require_once __DIR__ . '/../Model/AddProfile.php';
-require_once __DIR__ . '/../Model/Profile.php';
 
 use Model\AddProfile;
 
@@ -14,5 +13,5 @@ if (isset($_POST['firstName']) && isset($_POST['patronymic']) && isset($_POST['l
         $_POST['email'], $_POST['phone']);
     $addProfile->run();
 
-    header("Location: http://profi.es");
+    header("Location: http://profil.es");
 }

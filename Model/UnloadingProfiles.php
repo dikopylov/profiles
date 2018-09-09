@@ -23,7 +23,7 @@ class UnloadingProfiles implements IAction
             while ($row = $result->fetch_assoc())
             {
                 $profile = new Profile($row['first_name'], $row['patronymic'],
-                    $row['last_name'], $row['email'], $row['number']);
+                    $row['last_name'], $row['email'], $row['number'], $row["id"]);
 
                 $profiles[$row["id"]] = $profile;
             }
@@ -33,4 +33,3 @@ class UnloadingProfiles implements IAction
     }
 
 }
-

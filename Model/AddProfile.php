@@ -18,16 +18,25 @@ class AddProfile extends Profile
     {
         $mysqli = new \mysqli(host, user,password,database);
 
-        mysqli_real_escape_string($mysqli, $this->lastName);
-        mysqli_real_escape_string($mysqli, $this->firstName);
-        mysqli_real_escape_string($mysqli, $this->patronymic);
-        $this->email = mysqli_real_escape_string($mysqli, $this->email);
-        $this->phone = mysqli_real_escape_string($mysqli, $this->phone);
+        $clearParameters = array(
+            "lastName" => parent::getLastName(),
+            "firstName" => parent::getFirstName(),
+            "patronymic" => parent::getPatronymic(),
+            "email" => parent::getEmail(),
+            "phone" => parent::getPhone()
+        );
 
+        foreach ($clearParameters as $key => $clearParameter)
+        {
+            $clearParameters[$key] = $mysqli->real_escape_string($clearParameter);
+        }
+
+        /// СВЯЗИ!!!!!
         $queries = array("INSERT INTO profile VALUES(
-          NULL, '$this->lastName', '$this->patronymic', '$this->firstName')",
-            "INSERT INTO email VALUES(NULL, '$this->email', TRUE)",
-            "INSERT INTO phone VALUES(NULL, '$this->phone', TRUE)");
+          NULL, '{$clearParameters['lastName']}', '{$clearParameters['firstName']}',
+           '{$clearParameters['patronymic']}')",
+            "INSERT INTO email VALUES(NULL, , '{$clearParameters['email']}', TRUE)",
+            "INSERT INTO phone VALUES(NULL,  '{$clearParameters['phone']}', TRUE)");
 
         foreach ($queries as $query)
         {

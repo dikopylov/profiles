@@ -8,9 +8,8 @@
     <p>
         <a href="View/addProfile.php">Добавить профайл</a> <br>
         <?php
-            require_once __DIR__ . '/Model/index.php';
+            require_once __DIR__ . '/Controller/index.php';
         ?>
-
     </p>
 
 </body>
