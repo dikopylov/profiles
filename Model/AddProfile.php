@@ -31,14 +31,29 @@ class AddProfile extends Profile
             $clearParameters[$key] = $mysqli->real_escape_string($clearParameter);
         }
 
-        /// СВЯЗИ!!!!!
-        $queries = array("INSERT INTO profile VALUES(
-          NULL, '{$clearParameters['lastName']}', '{$clearParameters['firstName']}',
+        $queriesProfile = array("
+            INSERT INTO profile VALUES(NULL, '{$clearParameters['lastName']}', '{$clearParameters['firstName']}',
            '{$clearParameters['patronymic']}')",
-            "INSERT INTO email VALUES(NULL, , '{$clearParameters['email']}', TRUE)",
-            "INSERT INTO phone VALUES(NULL,  '{$clearParameters['phone']}', TRUE)");
+            "INSERT INTO email VALUES(NULL, '{$clearParameters['email']}')",
+            "INSERT INTO phone VALUES(NULL,  '{$clearParameters['phone']}')");
 
-        foreach ($queries as $query)
+        $id = array();
+
+        foreach ($queriesProfile as $query)
+        {
+            if($mysqli->query($query))
+            {
+                $id[] = $mysqli->insert_id;
+            }
+            else die($mysqli->error);
+        }
+
+        $queriesProfileContacts = array(
+            "INSERT INTO profile_email VALUES(NULL, '{$id[0]}', '{$id[1]}', TRUE)",
+            "INSERT INTO profile_phone VALUES(NULL, '{$id[0]}', '{$id[2]}', TRUE)"
+        );
+
+        foreach ($queriesProfileContacts as $query)
         {
             if($mysqli->query($query))
             {

@@ -44,7 +44,7 @@ class Profile
      * @var $email - array
      * @return string;
      */
-    public function setEmail($email) //: array
+    public function setEmail($email) : array
     {
         //return $this->email = htmlentities($email);
         return $this->email = htmlentities($email);
@@ -60,7 +60,7 @@ class Profile
      * @var $email - array
      * @return string;
      */
-    public function setPhone($phone)
+    public function setPhone($phone) : array
     {
         return $this->phone = htmlentities($phone);
     }
@@ -90,6 +90,7 @@ class Profile
 
     public function show()
     {
+
         printf("%s %s  %s  %s %d", $this->getFirstName(), $this->getPatronymic(),
             $this->getLastName(), $this->getEmail(), $this->getPhone());
     }
