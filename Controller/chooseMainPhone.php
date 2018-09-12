@@ -5,7 +5,7 @@ require_once __DIR__ . '/../Model/Phone.php';
 
 use Model\{ Phone, Profile };
 
-if (isset($_POST['data']))
+if (isset($_POST['phone_id']))
 {
     $clearId = htmlentities($_GET['id']);
 
@@ -14,7 +14,7 @@ if (isset($_POST['data']))
         $profiles[$clearId]->setId($clearId);
 
         $addEmail = new Phone($clearId);
-        $addEmail->add($_POST['data'], $_POST['is_main']);
+        $addEmail->changeMainPhone($_POST['phone_id']);
     }
-    header("Location: http://profil.es/");
+    header("Location: http://profil.es");
 }

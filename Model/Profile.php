@@ -78,23 +78,43 @@ class Profile
         return $this->id;
     }
 
+    public function getMainEmail()
+    {
+        return count($this->email) == 3 ? $this->email['email']
+            : $this->email[array_search("1" , array_column($this->email, 'email_main'))];
+    }
+
+    public function getMainPhone()
+    {
+        return count($this->phone) == 3 ? $this->phone['number'] :
+            $this->phone[array_search("1" , array_column($this->phone, 'phone_main'))];
+    }
+
     function __construct($firstName, $patronymic, $lastName, $email, $phone, $id = NULL)
     {
         $this->id = $id;
         $this->firstName = $firstName;
         $this->patronymic = $patronymic;
         $this->lastName = $lastName;
-        $this->email = $email;
-        $this->phone = $phone;
+        $this->email[] = $email;
+        $this->phone[] = $phone;
     }
 
     public function show()
     {
-
-        printf("%s %s  %s  %s %d", $this->getFirstName(), $this->getPatronymic(),
-            $this->getLastName(), $this->getEmail(), $this->getPhone());
+//        var_dump($this->getEmail());
+//        printf("%s %s  %s  %s %d", $this->getFirstName(), $this->getPatronymic(),
+//            $this->getLastName(), $this->getMainEmail()['email'], $this->getMainPhone()['number']);
     }
 
+    public function addEmail($DataEmail)
+    {
+        return $this->email[] = $DataEmail;
+    }
 
+    public function addPhone($DataPhone)
+    {
+        return $this->phone[] = $DataPhone;
+    }
 
 }

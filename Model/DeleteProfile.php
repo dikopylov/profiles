@@ -4,23 +4,17 @@
 namespace Model;
 
 require_once __DIR__ . '/dataMysql.php';
+require_once __DIR__ . '/Profile.php';
+
+
 
 class DeleteProfile
 {
-    private $id;
+    private $profile;
 
-    public function __construct($id)
+    public function __construct($profile)
     {
-        $this->id = $id;
-    }
-
-    public function setId($id)
-    {
-        return $this->id = $id;
-    }
-    public function getId()
-    {
-        return $this->id;
+        $this->profile = $profile;
     }
 
     public function run()
@@ -28,17 +22,36 @@ class DeleteProfile
         $mysqli = new \mysqli(host, user,password,database);
 
 
-        $queries = array("DELETE FROM profile WHERE id = '{$this->id}'",
-            "DELETE FROM email WHERE profile_id = '{$this->id}'",
-            "DELETE FROM phone WHERE profile_id = '{$this->id}'");
+        $id = is_null($this->profile->getId()) ? NULL : $this->profile->getId();
 
-        foreach ($queries as $query)
+        $queriesDeleteProfile = array(
+            "profile" => "DELETE FROM profile WHERE id = $id",
+            "profile_phone" => "DELETE FROM profile_phone WHERE profile_id = $id",
+            "profile_email" => "DELETE FROM profile_email WHERE profile_id = $id"
+        );
+
+        $queriesDeleteContacts = array(
+            "email" => "DELETE FROM email WHERE id = ",
+            "phone" => "DELETE FROM phone WHERE id = "
+        );
+
+        $emails = $this->profile ? $this->profile->getEmail() : NULL;
+
+        foreach ($emails as $email)
         {
-            if($mysqli->query($query))
-            {
-                continue;
-            }
-            else die($mysqli->error);
+            $mysqli->query($queriesDeleteContacts["email"] . $email["email_id"]) or die($mysqli->error);
+        }
+        $phones = $this->profile ? $this->profile->getPhone() : NULL;
+        foreach ($phones as $phone)
+        {
+            $mysqli->query($queriesDeleteContacts["phone"] . $phone["phone_id"]) or die($mysqli->error);
+        }
+
+
+
+        foreach ($queriesDeleteProfile as $query)
+        {
+            $mysqli->query($query) or die($mysqli->error);
         }
 
         $mysqli->close();

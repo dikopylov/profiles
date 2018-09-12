@@ -21,9 +21,13 @@ class EditProfile extends Profile
         $mysqli = new \mysqli(host, user,password,database);
 
         $clearParameters = array(
-            "lastName" => parent::getLastName(),
-            "firstName" => parent::getFirstName(),
+            "last_name" => parent::getLastName(),
+            "first_name" => parent::getFirstName(),
             "patronymic" => parent::getPatronymic(),
+
+        );
+
+        $clearParametersContacts = array(
             "email" => parent::getEmail(),
             "phone" => parent::getPhone()
         );
@@ -33,33 +37,84 @@ class EditProfile extends Profile
             $clearParameters[$key] = $mysqli->real_escape_string($clearParameter);
         }
 
+        foreach ($clearParametersContacts as $keys => $clearParameter)
+        {
+            foreach ($clearParameter as $key => $clearParam)
+            {
+                $clearParametersContacts[$key] = $mysqli->real_escape_string($clearParam);
+            }
+
+        }
+
         $id = $this->profile->getId();
 
         /** запрос нахождения ID, к которым принадлежат контактные данные пользователя*/
         $queriesContactsID = array(
-            "SELECT email_id FROM profile_email WHERE profile_id = '$id' AND is_main = 1",
-            "SELECT phone_id FROM profile_phone WHERE profile_id = '$id' AND is_main = 1"
+            "SELECT email_id FROM profile_email WHERE profile_id = $id AND is_main = 1",
+            "SELECT phone_id FROM profile_phone WHERE profile_id = $id AND is_main = 1"
         );
+
+        // NEW
+            $Contacts = array(
+                "email" => "email",
+                "phone" => "phone"
+            );
+
+            $Name = array(
+                "last_name" => "last_name",
+                "first_name" => "first_name",
+                "patronymic" => "patronymic"
+            );
+
+            $queryContact = array();
+
+            $resultContactID = array(
+            "email" => NULL,
+            "phone" => NULL
+            );
+
+            foreach ($Contacts as $key => $contact)
+            {
+                $queryContact[$key] = "SELECT " . $contact  ."_id FROM profile_" . $contact . " WHERE profile_id = $id AND is_main = 1";
+                if ($resultQuery = $mysqli->query($queryContact[$key]))
+                {
+                    $resultContactID[$key] = $resultQuery->fetch_assoc();
+                }
+                else
+                    die($mysqli->error);
+            }
+
+        $queriesUpdateName = array("UPDATE profile SET
+            last_name = '{$clearParameters['lastName']}', 
+            first_Name = '{$clearParameters['firstName']}',
+            patronymic = '{$clearParameters['patronymic']}' 
+            WHERE id = '$id'" //,
+//            "UPDATE email SET email = '{$clearParametersContacts['email'][0]}' WHERE id = '{$result[0]['email_id']}'",
+//            "UPDATE phone SET number = '{$clearParametersContacts['phone'][0]}' WHERE id = '{$result[1]['phone_id']}'"
+        );
+
+        // NEW
 
         // [0] - email, [1] - phone
         $result = array();
+
+        foreach ($queriesContactsID as $query)
+        {
+            if($res = $mysqli->query($query))
+            {
+                $result[] = $res->fetch_assoc();
+            }
+            else die($mysqli->error);
+        }
+
 
         $queriesUpdate = array("UPDATE profile SET
             last_name = '{$clearParameters['lastName']}', 
             first_Name = '{$clearParameters['firstName']}',
             patronymic = '{$clearParameters['patronymic']}' 
             WHERE id = '$id'",
-            "UPDATE email SET email = '{$clearParameters['email']}' WHERE id = '{$result[0]}'",
-            "UPDATE phone SET number = '{$clearParameters['phone']}' WHERE id = '{$result[1]}'");
-
-        foreach ($queriesContactsID as $query)
-        {
-            if($result[] = $mysqli->query($query))
-            {
-                continue;
-            }
-            else die($mysqli->error);
-        }
+            "UPDATE email SET email = '{$clearParametersContacts['email'][0]}' WHERE id = '{$result[0]['email_id']}'",
+            "UPDATE phone SET number = '{$clearParametersContacts['phone'][0]}' WHERE id = '{$result[1]['phone_id']}'");
 
         foreach ($queriesUpdate as $query)
         {

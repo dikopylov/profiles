@@ -22,6 +22,10 @@ class AddProfile extends Profile
             "lastName" => parent::getLastName(),
             "firstName" => parent::getFirstName(),
             "patronymic" => parent::getPatronymic(),
+
+        );
+
+        $clearParametersContacts = array(
             "email" => parent::getEmail(),
             "phone" => parent::getPhone()
         );
@@ -31,11 +35,21 @@ class AddProfile extends Profile
             $clearParameters[$key] = $mysqli->real_escape_string($clearParameter);
         }
 
+        foreach ($clearParametersContacts as $keys => $clearParameter)
+        {
+            foreach ($clearParameter as $key => $clearParam)
+            {
+                $clearParametersContacts[$key] = $mysqli->real_escape_string($clearParam);
+            }
+
+        }
+
+
         $queriesProfile = array("
             INSERT INTO profile VALUES(NULL, '{$clearParameters['lastName']}', '{$clearParameters['firstName']}',
            '{$clearParameters['patronymic']}')",
-            "INSERT INTO email VALUES(NULL, '{$clearParameters['email']}')",
-            "INSERT INTO phone VALUES(NULL,  '{$clearParameters['phone']}')");
+            "INSERT INTO email VALUES(NULL, '{$clearParametersContacts['email'][0]}')",
+            "INSERT INTO phone VALUES(NULL,  '{$clearParametersContacts['phone'][0]}')");
 
         $id = array();
 

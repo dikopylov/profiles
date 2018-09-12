@@ -5,7 +5,7 @@ require_once __DIR__ . '/../Model/Email.php';
 
 use Model\{ Email, Profile };
 
-if (isset($_POST['email']))
+if (isset($_POST['email_id']))
 {
     $clearId = htmlentities($_GET['id']);
 
@@ -14,7 +14,7 @@ if (isset($_POST['email']))
         $profiles[$clearId]->setId($clearId);
 
         $addEmail = new Email($clearId);
-        $addEmail->add($_POST['email'], $_POST['is_main']);
+        $addEmail->changeMainEmail($_POST['email_id']);
     }
-    header("Location: http://profil.es/");
+    header("Location: http://profil.es");
 }
