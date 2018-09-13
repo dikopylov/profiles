@@ -17,7 +17,6 @@ if (
     isset($_POST['phone'])
 )
 {
-    //валидация входных данных
     $profile = new Profile(
         $_POST['firstName'],
         $_POST['patronymic'],
