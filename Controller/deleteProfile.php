@@ -1,17 +1,14 @@
 <?php
 
+require_once __DIR__ . '/../Model/ProfileRepository.php';
+require_once __DIR__ . '/../Model/Profile.php';
 
-require_once __DIR__ . '/../Model/DeleteProfile.php';
-require_once __DIR__ . '/../Controller/unloadProfiles.php';
-
-use Model\{ DeleteProfile, Profile };
+use Model\{ Profile, ProfileRepository };
 
 if (isset($_GET['id']))
 {
-    $clearId = htmlentities($_GET['id']);
-
-    $deleteProfile = new DeleteProfile($profiles[$clearId]);
-    $deleteProfile->run();
+    $profileRepository = new ProfileRepository();
+    $profileRepository->deleteById(htmlentities($_GET['id']));
 
     header("Location: http://profil.es");
 }

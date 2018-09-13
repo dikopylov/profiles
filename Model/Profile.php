@@ -4,14 +4,18 @@ namespace Model;
 
 class Profile
 {
-    protected $firstName;
-    protected $patronymic;
-    protected $lastName;
-    protected $email;
-    protected $phone;
-    protected $id;
+    private $firstName;
+    private $patronymic;
+    private $lastName;
+    private $email;
+    private $phone;
+    private $id;
 
-    public function setFirstName($firstName) : string
+    /**
+     * @param string $firstName
+     * @return string
+     */
+    public function setFirstName(string $firstName) : string
     {
         return $this->firstName = htmlentities($firstName);
     }
@@ -46,9 +50,12 @@ class Profile
      */
     public function setEmail($email) : array
     {
-        //return $this->email = htmlentities($email);
         return $this->email = htmlentities($email);
     }
+
+    /**
+     * @return mixed
+     */
     public function getEmail() //: array
     {
         return $this->email;
@@ -80,10 +87,11 @@ class Profile
 
     public function getMainEmail()
     {
-        return count($this->email) == 3 ? $this->email['email']
-            : $this->email[array_search("1" , array_column($this->email, 'email_main'))];
-    }
-
+            foreach ($this->email as $item)
+            {
+                return $item["email_main"] == 1 ? $item : NULL;
+            }
+}
     public function getMainPhone()
     {
         return count($this->phone) == 3 ? $this->phone['number'] :
@@ -92,19 +100,12 @@ class Profile
 
     function __construct($firstName, $patronymic, $lastName, $email, $phone, $id = NULL)
     {
-        $this->id = $id;
-        $this->firstName = $firstName;
-        $this->patronymic = $patronymic;
-        $this->lastName = $lastName;
+        $this->id = htmlentities($id);
+        $this->firstName = htmlentities($firstName);
+        $this->patronymic = htmlentities($patronymic);
+        $this->lastName = htmlentities($lastName);
         $this->email[] = $email;
         $this->phone[] = $phone;
-    }
-
-    public function show()
-    {
-//        var_dump($this->getEmail());
-//        printf("%s %s  %s  %s %d", $this->getFirstName(), $this->getPatronymic(),
-//            $this->getLastName(), $this->getMainEmail()['email'], $this->getMainPhone()['number']);
     }
 
     public function addEmail($DataEmail)

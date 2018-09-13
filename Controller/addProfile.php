@@ -1,17 +1,26 @@
 <?php
 
-require_once __DIR__ . '/../Model/AddProfile.php';
+require_once __DIR__ . '/../Model/ProfileRepository.php';
+require_once __DIR__ . '/../Model/Profile.php';
 
-use Model\AddProfile;
+use Model\{ Profile, ProfileRepository };
 
-if (isset($_POST['firstName']) && isset($_POST['patronymic']) && isset($_POST['lastName']) &&
-    isset($_POST['email']) && isset($_POST['phone']))
+if (
+    isset($_POST['firstName']) &&
+    isset($_POST['patronymic']) &&
+    isset($_POST['lastName']) &&
+    isset($_POST['email']) &&
+    isset($_POST['phone'])
+)
 {
-    // вызываем метод в модели, который добавляет в базу данных новую карточку
+    //валидация входных данных
+    $profile = new Profile(
+        $_POST['firstName'],
+        $_POST['patronymic'],
+        $_POST['lastName'], $_POST['email'], $_POST['phone']);
 
-    $addProfile = new AddProfile($_POST['firstName'], $_POST['patronymic'], $_POST['lastName'],
-        $_POST['email'], $_POST['phone']);
-    $addProfile->run();
+    $profileRepository = new ProfileRepository();
+    $profileRepository->add($profile);
 
     header("Location: http://profil.es");
 }

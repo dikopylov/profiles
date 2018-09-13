@@ -2,10 +2,10 @@
 
 namespace Model;
 
-require_once __DIR__ . '/IAction.php';
+require_once __DIR__ . '/dataMysql.php';
 require_once __DIR__ . '/Profile.php';
 
-class UnloadingProfiles implements IAction
+class UnloadingProfiles
 {
     // Выгрузка профайлов из БД в объекты
     public function run()
@@ -42,7 +42,7 @@ class UnloadingProfiles implements IAction
 
                 $email = array(
                     'email_id' => $row['email_id'],
-                    'email' => $row['email'],
+                    'email'    => $row['email'],
                     'email_main' => $row['email_main']
                 );
 
@@ -52,35 +52,35 @@ class UnloadingProfiles implements IAction
                     'phone_main' => $row['phone_main']
                 );
 
-                    /** Проверка на избежания повторения записей*/
-                    if (in_array($row["id"], $uniqueData['profile_id']))
+                /** Проверка на избежания повторения записей*/
+                if (in_array($row["id"], $uniqueData['profile_id']))
+                {
+                    if (!in_array($row["email_id"], $uniqueData['email_id']))
                     {
-                        if (!in_array($row["email_id"], $uniqueData['email_id']))
-                        {
-                            $profiles[$row["id"]]->addEmail($email);
-                            $uniqueData['email_id'][] = $row["email_id"];
-
-                        }
-                        if (!in_array($row["phone_id"], $uniqueData['phone_id']))
-                        {
-                            $profiles[$row["id"]]->addPhone($phone);
-                            $uniqueData['phone_id'][] = $row["phone_id"];
-                        }
-                    }
-                    else
-                    {
-                        $profile = new Profile($row['first_name'], $row['patronymic'],
-                            $row['last_name'], $email, $phone, $row["id"]);
-
-                        $profiles[$row["id"]] = $profile;
-
-                        $uniqueData['profile_id'][] = $row["id"];
+                        $profiles[$row["id"]]->addEmail($email);
                         $uniqueData['email_id'][] = $row["email_id"];
+
+                    }
+                    if (!in_array($row["phone_id"], $uniqueData['phone_id']))
+                    {
+                        $profiles[$row["id"]]->addPhone($phone);
                         $uniqueData['phone_id'][] = $row["phone_id"];
                     }
                 }
+                else
+                {
+                    $profile = new Profile($row['first_name'], $row['patronymic'],
+                        $row['last_name'], $email, $phone, $row["id"]);
+
+                    $profiles[$row["id"]] = $profile;
+
+                    $uniqueData['profile_id'][] = $row["id"];
+                    $uniqueData['email_id'][] = $row["email_id"];
+                    $uniqueData['phone_id'][] = $row["phone_id"];
+                }
             }
-            $mysqli->close();
-            return $profiles;
+        }
+        $mysqli->close();
+        return $profiles;
         }
 }

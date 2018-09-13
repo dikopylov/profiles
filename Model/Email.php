@@ -42,7 +42,6 @@ class Email
     public function __construct($id)
     {
         $this->id = $id;
-        ;
     }
 
     public function add($email, $isMain)

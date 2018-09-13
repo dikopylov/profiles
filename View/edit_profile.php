@@ -1,5 +1,11 @@
 <?php
-require_once __DIR__ . '/../Controller/unloadProfiles.php';
+require_once __DIR__ . '/../Controller/index.php';
+/**
+ * @var \Model\Profile[] $profiles
+ *
+ */
+
+var_dump($profiles[$_GET['id']]->getMainEmail());
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -24,7 +30,7 @@ require_once __DIR__ . '/../Controller/unloadProfiles.php';
         <a href="delete_email.php?id=<? echo $_GET['id'] ?>">Удалить почту</a>
     </p>
     <input name="email" type="text" maxlength="30" size="30" value=
-        <? echo $profiles[$_GET['id']]->getMainEmail()['email'] ?>>
+        <? echo $profiles[$_GET['id']]->getMainEmail()['email']; ?>>
     <p>Phone <a href="add_phone.php?id=<? echo $_GET['id'] ?>">Добавить телефон</a>
         <a href="choose_main_phone.php?id=<? echo $_GET['id'] ?>">Выбор основного телефона</a>
         <a href="delete_phone.php?id=<? echo $_GET['id'] ?>">Удалить телефон</a> </p>
