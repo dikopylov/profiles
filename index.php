@@ -1,9 +1,11 @@
 <?php
     require_once __DIR__ . '/Controller/index.php';
-    /**
-     * @var \Model\Profile[] $profiles
-     *
-     */
+
+ /**
+ * @var \Model\Profile[] $profiles
+ * @var \Model\Email $email
+ * @var \Model\Phone $phone
+ */
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -12,7 +14,7 @@
   <title>Система профайлов</title>
 </head>
 <body>
-    <p><a href="View/add_profile.php">Добавить профайл</a></p>
+    <p><a href="View/add-profile.tpl.php">Добавить профайл</a></p>
 
     <style type="text/css">
         TABLE {
@@ -37,10 +39,10 @@
                         <th>Фамилия</th>
                         <th>Имя</th>
                         <th>Отчество</th>
-                        <th>Основной email</th>
-                        <th>Основной телефон</th>
+                        <th>Email (зеленый - основной)</th>
+                        <th>Телефон (зеленый - основной)</th>
                     </tr>
-                    <?php foreach ($profiles as $id => $profile):?>
+                    <?php foreach ($profiles as $id => $profile):;?>
                     <tr>
                         <td><?=$profile->getLastName()?></td>
                         <td><?=$profile->getFirstName()?></td>
@@ -49,10 +51,10 @@
                             <?php
                                 foreach ($profile->getEmail() as $key => $email)
                                 {
-                                if ($email["email_main"] == 1) {
-                                    echo '<strong style="color: green">' . $email["email"] . '</strong>' . '<br>';
+                                if ($email->getIsMain() == 1) {
+                                    echo '<strong style="color: green">' . $email->getEmail() . '</strong>' . '<br>';
                                 } else
-                                    echo $email["email"] . '<br>';
+                                    echo $email->getEmail() . '<br>';
                                 }
                             ?>
                         </td>
@@ -60,15 +62,15 @@
                             <?php
                             foreach ($profile->getPhone() as $key => $phone)
                             {
-                                if ($phone["phone_main"] == 1) {
-                                    echo '<strong style="color: green">' . $phone["number"] . '</strong>' . '<br>';
+                                if ($phone->getIsMain() == 1) {
+                                    echo '<strong style="color: green">' . $phone->getNumber() . '</strong>' . '<br>';
                                 } else
-                                    echo $phone["number"] . '<br>';
+                                    echo $phone->getNumber() . '<br>';
                             }
                             ?>
                         </td>
                         <td><a href="/View/edit_profile.php?id=<?=$id?>">Редактировать профайл</a></td>
-                        <td><a href="Controller/deleteProfile.php?id=<?=$id?>">Удалить профайл</a></td>
+                        <td><a href="Controller/Profile/deleteProfile.php?id=<?=$id?>">Удалить профайл</a></td>
                     </tr>
                     <?php endforeach; ?>
         </table>

@@ -2,25 +2,42 @@
 
 namespace Model;
 
-require_once __DIR__ . '/dataMysql.php';
 require_once __DIR__ . '/Profile.php';
+require_once __DIR__ . '/Database.php';
+require_once __DIR__ . '/../Controller/index.php';
 
+/**
+ * Class ProfileRepository
+ * @package Model
+ */
 class ProfileRepository
 {
-    private $emailRepo;
-    private $phoneRepo;
+    private $emailRepository;
+    private $phoneRepository;
 
-    /** Добавление объекта в репозиторий */
+    /**
+     * ProfileRepository constructor.
+     * @param EmailRepository $emailRepository
+     * @param PhoneRepository $phoneRepository
+     */
+    public function __construct(EmailRepository $emailRepository, PhoneRepository $phoneRepository)
+    {
+        $this->emailRepository = $emailRepository;
+        $this->phoneRepository = $phoneRepository;
+
+    }
+
+    /**
+     * @param Profile $profile
+     */
     public function add(Profile $profile)
     {
-        $mysqli = new \mysqli(host, user,password,database);
-
         $clearParameters = array(
             "lastName" => $profile->getLastName(),
             "firstName" => $profile->getFirstName(),
             "patronymic" => $profile->getPatronymic(),
-            "email" => $profile->getMainEmail(),
-            "phone" => $profile->getMainPhone()
+            "email" => $profile->getMainEmail()->getEmail(),
+            "phone" => $profile->getMainPhone()->getNumber()
         );
 
         foreach ($clearParameters as $key => $clearParameter) {
@@ -29,31 +46,31 @@ class ProfileRepository
                 /** для полей email, phone */
                 foreach ($clearParameter as $clue => $clearParam)
                 {
-                    $clearParameters[$clue] = $mysqli->real_escape_string($clearParam);
+                    $clearParameters[$clue] = Database::escape_string($clearParam);
                 }
             }
             else
             {
-                $clearParameters[$key] = $mysqli->real_escape_string($clearParameter);
+                $clearParameters[$key] = Database::escape_string($clearParameter);
             }
         }
 
         $queriesData = array(
-            "profile" => "INSERT INTO profile VALUES(NULL, '{$clearParameters['lastName']}', '{$clearParameters['firstName']}',
-           '{$clearParameters['patronymic']}')",
+            "profile" => "INSERT INTO profile VALUES(NULL, '{$clearParameters['firstName']}',
+           '{$clearParameters['patronymic']}', '{$clearParameters['lastName']}')",
             "email" => "INSERT INTO email VALUES(NULL, '{$clearParameters['email']}')",
-            "phone" => "INSERT INTO phone VALUES(NULL,  '{$clearParameters['phone']}')");
+            "phone" => "INSERT INTO phone VALUES(NULL, '{$clearParameters['phone']}')"
+            );
 
-        /** @var INT $resultId - массив последних вставленных ID значений в БД */
         $resultId = array();
 
         foreach ($queriesData as $key => $query)
         {
-            if($mysqli->query($query))
+            if(Database::query($query))
             {
-                $resultId[$key] = $mysqli->insert_id;
+                $resultId[$key] = Database::insert_id();
             }
-            else die($mysqli->error);
+            else die(Database::error());
         }
 
         $queriesProfileContacts = array(
@@ -63,23 +80,18 @@ class ProfileRepository
 
         foreach ($queriesProfileContacts as $query)
         {
-            $mysqli->query($query) or die($mysqli->error);
+            Database::query($query) or die(Database::error());
         }
 
-        $mysqli->close();
     }
 
     /**
-     * Вывод всех объектов из репозитория
-     * @return Profile[]
+     * @return array
      */
     public function getAll() : array
     {
-        $mysqli = new \mysqli(host, user, password, database);
-//        $queryJoin = <<<SQL
-//SQL;
-
-        $queryJoin = "SELECT profile.id, profile.first_name, profile.patronymic, profile.last_name,
+        $queryJoin =<<<SQL
+            SELECT profile.id, profile.first_name, profile.patronymic, profile.last_name,
             profile_email.email_id, profile_email.is_main AS email_main, 
             profile_phone.phone_id, profile_phone.is_main AS phone_main, 
             email.email, phone.number
@@ -87,9 +99,9 @@ class ProfileRepository
             JOIN profile_email ON profile.id = profile_email.profile_id)
             JOIN profile_phone ON profile.id = profile_phone.profile_id)
             JOIN email on profile_email.email_id = email.id)
-            JOIN phone on profile_phone.phone_id = phone.id)";
+            JOIN phone on profile_phone.phone_id = phone.id)
+SQL;
 
-        /** @var Profile $profiles */
         $profiles = array();
 
         $uniqueData = array(
@@ -98,27 +110,14 @@ class ProfileRepository
             'phone_id' => array()
         );
 
-        $result = array(
-            'Join' => NULL,
-            'Email' => NULL,
-            'Phone' => NULL
-        );
+        $resultJoin = NULL;
 
-        if ($result['Join'] = $mysqli->query($queryJoin)) {
+        if ($resultJoin = Database::query($queryJoin)) {
+            while ($row = Database::fetch_assoc($resultJoin)) {
 
-            while ($row = $result['Join']->fetch_assoc()) {
+                $email = new Email($row['email'], $row['email_main'], $row['email_id']);
 
-                $email = array(
-                    'email_id' => $row['email_id'],
-                    'email' => $row['email'],
-                    'email_main' => $row['email_main']
-                );
-
-                $phone = array(
-                    'phone_id' => $row['phone_id'],
-                    'number' => $row['number'],
-                    'phone_main' => $row['phone_main']
-                );
+                $phone = new Phone($row['number'], $row['phone_main'], $row['phone_id']);
 
                 /** Проверка для избежания повторения записей */
                 if (in_array($row["id"], $uniqueData['profile_id']))
@@ -149,99 +148,16 @@ class ProfileRepository
             }
         }
 
-        $mysqli->close();
-
         return $profiles;
+
     }
 
-    /** Поиск объекта */
-    public function findById($profileId)
-    {
-        $mysqli = new \mysqli(host, user, password, database);
-
-        $profileId = mysqli_real_escape_string($mysqli, $profileId);
-
-        $queryJoin = "SELECT profile.id, profile.first_name, profile.patronymic, profile.last_name,
-            profile_email.email_id, profile_email.is_main AS email_main, 
-            profile_phone.phone_id, profile_phone.is_main AS phone_main, 
-            email.email, phone.number
-            FROM ((((profile
-            JOIN profile_email ON profile.id = profile_email.profile_id)
-            JOIN profile_phone ON profile.id = profile_phone.profile_id)
-            JOIN email on profile_email.email_id = email.id)
-            JOIN phone on profile_phone.phone_id = phone.id)
-            WHERE profile.id = $profileId";
-
-        $uniqueData = array(
-            'profile_id' => array(),
-            'email_id' => array(),
-            'phone_id' => array()
-        );
-
-        $result = array(
-            'Join' => NULL,
-            'Email' => NULL,
-            'Phone' => NULL
-        );
-
-        $profile = null;
-
-        if ($result['Join'] = $mysqli->query($queryJoin)) {
-
-            while ($row = $result['Join']->fetch_assoc()) {
-
-                $email = array(
-                    'email_id' => $row['email_id'],
-                    'email' => $row['email'],
-                    'email_main' => $row['email_main']
-                );
-
-                $phone = array(
-                    'phone_id' => $row['phone_id'],
-                    'number' => $row['number'],
-                    'phone_main' => $row['phone_main']
-                );
-
-                /** Проверка для избежания повторения записей */
-                if (in_array($row["id"], $uniqueData['profile_id']))
-                {
-                    if (!in_array($row["email_id"], $uniqueData['email_id']))
-                    {
-                        $profile->addEmail($email);
-                        var_dump($profile);
-                        exit();
-                        $uniqueData['email_id'][] = $row["email_id"];
-
-                    }
-                    if (!in_array($row["phone_id"], $uniqueData['phone_id']))
-                    {
-                        $profile->addPhone($phone);
-                        $uniqueData['phone_id'][] = $row["phone_id"];
-                    }
-                }
-                else
-                {
-                    $profile = new Profile($row['first_name'], $row['patronymic'],
-                        $row['last_name'], $email, $phone, $row["id"]);
-
-                    $uniqueData['profile_id'][] = $row["id"];
-                    $uniqueData['email_id'][] = $row["email_id"];
-                    $uniqueData['phone_id'][] = $row["phone_id"];
-                }
-            }
-        }
-
-        $mysqli->close();
-
-        return $profile;
-    }
-
-    /** Удаление объекта */
+    /**
+     * @param $profileId
+     */
     public function deleteById($profileId)
     {
-        $mysqli = new \mysqli(host, user,password,database);
-
-        $profileId = mysqli_real_escape_string($mysqli, $profileId);
+          $profileId = Database::escape_string($profileId);
 
         $queriesDeleteProfile = array(
             "email" => "DELETE FROM email WHERE id IN (SELECT profile_email.email_id FROM profile_email 
@@ -255,28 +171,28 @@ class ProfileRepository
 
         foreach ($queriesDeleteProfile as $query)
         {
-            $mysqli->query($query) or die($mysqli->error);
+            Database::query($query) or die(Database::error());
         }
 
-        $mysqli->close();
     }
 
-    public function edit($profileId, $firstName, $patronymic, $lastName, $email, $phone)
+    /**
+     * @param Profile $profile
+     */
+    public function edit(Profile $profile)
     {
-        $mysqli = new \mysqli(host, user,password,database);
-
-        $clearParameters = array(
-            "id" => htmlentities($profileId),
-            "lastName" => htmlentities($lastName),
-            "firstName" => htmlentities($firstName),
-            "patronymic" => htmlentities($patronymic),
-            "email" => htmlentities($email),
-            "phone" => htmlentities($phone)
+          $clearParameters = array(
+            "id" => htmlentities($profile->getId()),
+            "lastName" => htmlentities($profile->getLastName()),
+            "firstName" => htmlentities($profile->getFirstName()),
+            "patronymic" => htmlentities($profile->getPatronymic()),
+            "email" => htmlentities($profile->getMainEmail()->getEmail()),
+            "phone" => htmlentities($profile->getMainPhone()->getNumber())
         );
 
         foreach ($clearParameters as $key => $clearParameter)
         {
-            $clearParameters[$key] = $mysqli->real_escape_string($clearParameter);
+            $clearParameters[$key] = Database::escape_string($clearParameter);
         }
 
         $queriesUpdate = array(" UPDATE profile SET
@@ -294,20 +210,11 @@ class ProfileRepository
 
         foreach ($queriesUpdate as $query)
         {
-            if($mysqli->query($query))
+            if(Database::query($query))
             {
                 continue;
             }
-            else die($mysqli->error);
+            else die(Database::error());
         }
-
-        $mysqli->close();
-
     }
-
-//    public function __construct(EmailRepository $emailRepository, PhoneRepository $phonerepository)
-//    {
-//        $this->phoneRepo = $phoneRepository;
-//
-//    }
 }

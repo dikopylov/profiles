@@ -1,11 +1,12 @@
 <?php
 require_once __DIR__ . '/../Controller/index.php';
+
 /**
  * @var \Model\Profile[] $profiles
- *
+ * @var \Model\Email $email
+ * @var \Model\Phone $phone
  */
 
-var_dump($profiles[$_GET['id']]->getMainEmail());
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -14,7 +15,7 @@ var_dump($profiles[$_GET['id']]->getMainEmail());
     <title>Редактирование профайла</title>
 </head>
 <body>
-<form name="main" method="post" action="../Controller/editProfile.php?id=<? echo $_GET['id'] ?>">
+<form name="main" method="post" action="../Controller/Profile/editProfile.php?id=<? echo $_GET['id'] ?>">
     <p>Фамилия</p>
     <input name="firstName" type="text" maxlength="30" size="30" value=
         <? echo $profiles[$_GET['id']]->getFirstName()?>>
@@ -25,18 +26,18 @@ var_dump($profiles[$_GET['id']]->getMainEmail());
     <input name="lastName" type="text" maxlength="30" size="30" value=
         <? echo $profiles[$_GET['id']]->getLastName() ?>>
     <p>E-mail
-        <a href="add_email.php?id=<? echo $_GET['id'] ?>">Добавить почту</a>
-        <a href="choose_main_email.php?id=<? echo $_GET['id'] ?>">Выбор основной почты</a>
-        <a href="delete_email.php?id=<? echo $_GET['id'] ?>">Удалить почту</a>
+        <a href="add-email.tpl.php?id=<? echo $_GET['id'] ?>">Добавить почту</a>
+        <a href="choose-main-email.tpl.php?id=<? echo $_GET['id'] ?>">Выбор основной почты</a>
+        <a href="delete-email.tpl.php?id=<? echo $_GET['id'] ?>">Удалить почту</a>
     </p>
     <input name="email" type="text" maxlength="30" size="30" value=
-        <? echo $profiles[$_GET['id']]->getMainEmail()['email']; ?>>
-    <p>Phone <a href="add_phone.php?id=<? echo $_GET['id'] ?>">Добавить телефон</a>
-        <a href="choose_main_phone.php?id=<? echo $_GET['id'] ?>">Выбор основного телефона</a>
-        <a href="delete_phone.php?id=<? echo $_GET['id'] ?>">Удалить телефон</a> </p>
+        <?  echo $profiles[$_GET['id']]->getMainEmail()->getEmail(); ?>>
+    <p>Phone <a href="add-phone.tpl.php?id=<? echo $_GET['id'] ?>">Добавить телефон</a>
+        <a href="choose-main-phone.tpl.php?id=<? echo $_GET['id'] ?>">Выбор основного телефона</a>
+        <a href="delete-phone.tpl.php?id=<? echo $_GET['id'] ?>">Удалить телефон</a> </p>
     </p>
-    <input name="phone" type="text" maxlength="30" size="30" value=
-        <? echo $profiles[$_GET['id']]->getMainPhone()['number'] ?>>
+    <input name="phone" type="tel" pattern="[0-9]{1,11}" maxlength="30" size="30" value=
+        <? echo $profiles[$_GET['id']]->getMainPhone()->getNumber();?>>
      <br>
     <input name="submit" type="submit">
 

@@ -2,6 +2,13 @@
 
 namespace Model;
 
+require_once __DIR__ . '/Email.php';
+require_once __DIR__ . '/Phone.php';
+
+/**
+ * Class Profile
+ * @package Model
+ */
 class Profile
 {
     private $firstName;
@@ -19,86 +26,133 @@ class Profile
     {
         return $this->firstName = htmlentities($firstName);
     }
+
+    /**
+     * @return string
+     */
     public function getFirstName() : string
     {
         return $this->firstName;
     }
 
+    /**
+     * @param $patronymic
+     * @return string
+     */
     public function setPatronymic($patronymic) : string
     {
         return $this->patronymic = htmlentities($patronymic);
     }
+
+    /**
+     * @return string
+     */
     public function getPatronymic() : string
     {
         return $this->patronymic;
     }
 
+    /**
+     * @param $lastName
+     * @return string
+     */
     public function setLastName($lastName) : string
     {
         return $this->lastName = htmlentities($lastName);
     }
+
+    /**
+     * @return string
+     */
     public function getLastName() : string
     {
         return $this->lastName;
     }
 
     /**
-     * формат массива: (почта, является ли основным)
-     * $email = (example@mail.com, TRUE)
-     * @var $email - array
-     * @return string;
+     * @param Email $email
+     * @return array
      */
-    public function setEmail($email) : array
+    public function setEmail(Email $email) : array
     {
-        return $this->email = htmlentities($email);
+        return array_push($this->email, $email);
     }
 
     /**
-     * @return mixed
+     * @return array
      */
-    public function getEmail() //: array
+    public function getEmail() : array
     {
         return $this->email;
     }
 
     /**
-     * формат массива: (телефон, является ли основным)
-     * $phone = (3823, FALSE)
-     * @var $email - array
-     * @return string;
+     * @param Phone $phone
+     * @return array
      */
-    public function setPhone($phone) : array
+    public function setPhone(Phone $phone) : array
     {
-        return $this->phone = htmlentities($phone);
+        return array_push($this->phone, $phone);
     }
-    public function getPhone()
+
+    /**
+     * @return array
+     */
+    public function getPhone() : array
     {
         return $this->phone;
     }
 
-    public function setId($id)
+    /**
+     * @param $id
+     * @return int
+     */
+    public function setId($id) : int
     {
         return $this->id = $id;
     }
-    public function getId()
+
+    /**
+     * @return int
+     */
+    public function getId() : int
     {
         return $this->id;
     }
 
-    public function getMainEmail()
+    /**
+     * @return Email
+     */
+    public function getMainEmail() : Email
     {
-            foreach ($this->email as $item)
-            {
-                return $item["email_main"] == 1 ? $item : NULL;
-            }
-}
-    public function getMainPhone()
-    {
-        return count($this->phone) == 3 ? $this->phone['number'] :
-            $this->phone[array_search("1" , array_column($this->phone, 'phone_main'))];
+        foreach ($this->email as $email) {
+            if ($email->getIsMain() == 1)
+                return $email;
+        }
     }
 
-    function __construct($firstName, $patronymic, $lastName, $email, $phone, $id = NULL)
+    /**
+     * @return Phone
+     */
+    public function getMainPhone() : Phone
+    {
+        foreach ($this->phone as $phone)
+        {
+            if ($phone->getIsMain() == 1)
+                return $phone;
+        }
+    }
+
+    /**
+     * Profile constructor.
+     * @param $firstName
+     * @param $patronymic
+     * @param $lastName
+     * @param Email $email
+     * @param Phone $phone
+     * @param null $id
+     */
+    function __construct($firstName, $patronymic, $lastName, Email $email, Phone $phone, $id = NULL)
     {
         $this->id = htmlentities($id);
         $this->firstName = htmlentities($firstName);
@@ -108,14 +162,22 @@ class Profile
         $this->phone[] = $phone;
     }
 
-    public function addEmail($DataEmail)
+    /**
+     * @param Email $email
+     * @return Email
+     */
+    public function addEmail(Email $email)
     {
-        return $this->email[] = $DataEmail;
+        return $this->email[] = $email;
     }
 
-    public function addPhone($DataPhone)
+    /**
+     * @param Phone $phone
+     * @return Phone
+     */
+    public function addPhone(Phone $phone)
     {
-        return $this->phone[] = $DataPhone;
+        return $this->phone[] = $phone;
     }
 
 }
